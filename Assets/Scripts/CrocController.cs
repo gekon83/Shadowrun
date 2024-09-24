@@ -29,30 +29,33 @@ public class CrocController : MonoBehaviour
         initialPosition = transform.position;
         lastPosition = transform.position;
 
-        SetNewRandomTarget();
+        //target = null;
+
+        SetNewTarget();
     }
 
     void FixedUpdate() {
-
-        if (player != null && player.IsDetectable()) {
-            MoveTowardsTarget(player.transform.position);
-            DrawLineToTarget(player.transform.position);
-        } else {
-            MoveTowardsTarget(targetPosition);
-            DrawLineToTarget(targetPosition);
-
-            if (Vector3.Distance(transform.position, targetPosition) < stopDistance) {
-                SetNewRandomTarget();
-            }
-        }
-
+        FindTarget();
+        MoveTowardsTarget(targetPosition);
+        DrawLineToTarget(targetPosition);
 
         Vector3 currentPosition = transform.position;
         directionOfMovement = (currentPosition - lastPosition).normalized;
         lastPosition = currentPosition;
     }
 
-    void SetNewRandomTarget() {
+    private void FindTarget() {
+        if (player != null && player.IsDetectable()) {
+            targetPosition = player.transform.position;
+        }
+        else {
+            if (Vector3.Distance(transform.position, targetPosition) < stopDistance) {
+                SetNewTarget();
+            }
+        }
+    }
+
+    void SetNewTarget() {
         // Randomize a point within the patrol radius
         Vector2 randomPoint = Random.insideUnitCircle * patrolRadius;
         //targetPosition = initialPosition + new Vector3(randomPoint.x, 0, randomPoint.y);

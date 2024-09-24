@@ -48,14 +48,16 @@ public class PlayerController : MonoBehaviour {
     private void HandleMovement() {
 
         if (IsGrounded()) {
-            Vector2 inputVector = gameInput.GetMovementVectorNotmalized();
+                Vector2 inputVector = gameInput.GetMovementVectorNotmalized();
 
             Vector3 moveDir = new Vector3(inputVector.x, 0f, inputVector.y);
 
-            float moveDistance = moveSpeed * Time.deltaTime;
+            float moveDistance = moveSpeed * Time.fixedDeltaTime;
             float playerRadius = .7f;
             float playerHeight = 2f;
-            bool canMove = !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerHeight, playerRadius, moveDir, moveDistance);
+            bool canMove = true;
+            //bool canMove = !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerHeight, playerRadius, moveDir, moveDistance);
+            //Debug.Log("canMove: " + canMove);
 
             if (!canMove) {
                 // Cannot move towards moveDirection
@@ -118,8 +120,10 @@ public class PlayerController : MonoBehaviour {
     private bool IsInLight() {
         foreach (Light lightSource in lights) {
             if (IsIlluminatedByLight(lightSource)) {
-                DrawLineToLight(lightSource);
+                DrawLineToLight(lightSource, Color.red);
                 return true; // If illuminated by any light, return true
+            } else {
+                DrawLineToLight(lightSource, Color.gray);
             }
         }
         return false; // Not illuminated by any light
@@ -155,6 +159,27 @@ public class PlayerController : MonoBehaviour {
         }
 
         return false; // There is an obstruction, the object is in the shadow
+        /*
+
+        // Calculate the direction opposite to the light direction
+        Vector3 lightDirection = -lightSource.transform.forward;
+
+        // Cast a ray from the player's position in the direction opposite to the light
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, lightDirection);
+
+        // If the ray hits something, check if it has a renderer and is not transparent
+        if (hit.collider != null) {
+            return false;
+
+            Renderer hitRenderer = hit.collider.GetComponent<Renderer>();
+            if (hitRenderer != null && hitRenderer.enabled) {
+                // Check if the material's alpha value indicates it's opaque
+
+                return false; // Player is in shadow
+            }
+        }
+
+        return true; // No shadow found*/
     }
     /*
     bool IsIlluminatedByLight(Light lightSource) {
@@ -177,9 +202,9 @@ public class PlayerController : MonoBehaviour {
     }/**/
 
     /********************************************************************************************/
-    void DrawLineToLight(Light lightSource) {
+    void DrawLineToLight(Light lightSource, Color color) {
         // Draw a line from the light source to the game object
-        Debug.DrawLine(lightSource.transform.position, transform.position, Color.red);
+        Debug.DrawLine(lightSource.transform.position, transform.position, color);
     }
 
     /********************************************************************************************/
